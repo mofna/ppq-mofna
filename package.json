@@ -1,9 +1,10 @@
 {
-    "name"         : "ppq-mofna",
-    "version"      : "0.0.1",
-    "description"  : "testing",
-    "main"         : "App.js",
-    "author"       : "fna",
-    "dependencies" : {
+    "name": "ppq-mofna",
+    "version": "0.0.1",
+    "description": "testing",
+    "main": "App.js",
+    "author": "fna",
+    "dependencies": {
+        "discord.js": "^11.4.2"
     }
 }
