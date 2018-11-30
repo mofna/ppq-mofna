@@ -1,0 +1,9 @@
+{
+    "name"         : "ppq-mofna",
+    "version"      : "0.0.1",
+    "description"  : "testing",
+    "main"         : "App.js",
+    "author"       : "fna",
+    "dependencies" : {
+    }
+}
