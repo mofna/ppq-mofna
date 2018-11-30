@@ -1,13 +1,23 @@
 {
-    "name": "ppq-mofna",
-    "version": "0.0.1",
-    "description": "testing",
-    "main": "App.js",
-    "author": "fna",
-    "scripts": {
+  "name": "ppq-mofna",
+  "version": "0.0.1",
+  "description": "testing",
+  "main": "App.js",
+  "author": "fna",
+  "scripts": {
     "start": "App.js"
   },
-    "dependencies": {
-        "discord.js": "^11.4.2"
-    }
+  "dependencies": {
+    "discord.js": "^11.4.2"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mofna/ppq-mofna.git"
+  },
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mofna/ppq-mofna/issues"
+  },
+  "homepage": "https://github.com/mofna/ppq-mofna#readme"
 }
