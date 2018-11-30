@@ -4,6 +4,9 @@
     "description": "testing",
     "main": "App.js",
     "author": "fna",
+    "scripts": {
+    "start": "App.js"
+  },
     "dependencies": {
         "discord.js": "^11.4.2"
     }
