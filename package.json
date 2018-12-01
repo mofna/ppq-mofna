@@ -5,7 +5,8 @@
   "main": "App.js",
   "author": "fna",
   "scripts": {
-    "start": "App.js"
+    "start": "node App.js",
+    "test": "node App.js"
   },
   "dependencies": {
     "discord.js": "^11.4.2"
