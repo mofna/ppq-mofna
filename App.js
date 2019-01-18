@@ -147,7 +147,7 @@ client.on('message', message =>
                 obj["embed"]["fields"].push(
                   {name:"<<極ステータス>>",value:t}
                 )
-                if(res["tksp"]&&((res["tksp"]=="あり"&&rarity==7)||(res["tksp"]=="あり(★6)"&&rarity>=6))){
+                if(rarity>4&&res["tksp"]&&((res["tksp"]=="あり"&&rarity==7)||(res["tksp"]=="あり(★6)"&&rarity>=6))){
                   hp-=500;atk-=250;rcv-=100;
                   t="体力："+hp+"\n攻撃："+atk+"\n回復："+rcv;
                   obj["embed"]["fields"].push(
