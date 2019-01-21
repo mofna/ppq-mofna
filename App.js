@@ -84,9 +84,7 @@ client.on('message', message =>
   if(message.channel.name=="実況"){
     message.channel.send("'\n"+message.content+" @everyone");
     message.delete(2000);
-  }else{
-	//if(message.isMemberMentioned(client.user)){
-		//message.reply( '呼びましたか？' );
+  }else if(message.channel.name=="botspam"){
     if(/^>>[Cc]\s/.test(message.content)){
       var tx = message.content;
       let flg = false;
