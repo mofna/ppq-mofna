@@ -89,6 +89,11 @@ client.on('message', message =>
 		//message.reply( '呼びましたか？' );
     if(/^>>[Cc]\s/.test(message.content)){
       var tx = message.content;
+      let flg = false;
+      if(/^.+\s([tT][oO][kK][kK][uU][nN]|\u7279\u8a13|\u3068\u3063\u304f\u3093)$/.test(tx)){
+        flg=true;
+        tx=tx.match(/^(.+)\s(?:[tT][oO][kK][kK][uU][nN]|\u7279\u8a13|\u3068\u3063\u304f\u3093)$/)[1];
+      }
       tx=tx.trim();
       tx=tx.slice(4);
       var param="?param=c";
@@ -98,7 +103,6 @@ client.on('message', message =>
       }
       tx=tx.trim();
       if(tx.length)param+="&name="+tx;
-      console.log(param);
       mtx=message;
       ht.get(URL+encodeURI(param), (res) => {
         let body = '';
@@ -130,49 +134,169 @@ client.on('message', message =>
               obj["embed"]["title"]=res["name"];
               obj["embed"]["thumbnail"]={url:res["img"]};
               obj["embed"]["description"]="属性："+cl+"\n"+res["type"];
-              obj["embed"]["fields"]=[
-                {name:"<<ステータス>>",value:res["charastats"]}
-              ];
               let rarity=res["name"].slice(2,3)|0;
-              if(rarity>4&&res["tkid"]!="-"&&res["tkid"]!="z"){
-                let a,hp,atk,rcv,t;
-                a=res["charastats"].split("\n");
-                hp=a[0].slice(a[0].indexOf("～")+1)|0;
-                atk=a[1].slice(a[1].indexOf("～")+1)|0;
-                rcv=a[2].slice(a[2].indexOf("～")+1)|0;
-                hp=hp+Tokkun[res["type"].split("タイプ").join("")+rarity+res["tkid"]][0];
-                atk=atk+Tokkun[res["type"].split("タイプ").join("")+rarity+res["tkid"]][1];
-                rcv=rcv+Tokkun[res["type"].split("タイプ").join("")+rarity+res["tkid"]][2];
-                t="体力："+hp+"\n攻撃："+atk+"\n回復："+rcv;
-                obj["embed"]["fields"].push(
-                  {name:"<<極ステータス>>",value:t}
-                )
-                if(res["tksp"]&&((res["tksp"]=="あり"&&rarity==7)||(res["tksp"]=="あり(★6)"&&rarity>=6))){
-                  hp-=500;atk-=250;rcv-=100;
+              if(!flg){
+                obj["embed"]["fields"]=[
+                  {name:"<<ステータス>>",value:res["charastats"]}
+                ];
+                if(rarity>4&&res["tkid"]!="-"&&res["tkid"]!="z"){
+                  let a,hp,atk,rcv,t;
+                  a=res["charastats"].split("\n");
+                  hp=a[0].slice(a[0].indexOf("～")+1)|0;
+                  atk=a[1].slice(a[1].indexOf("～")+1)|0;
+                  rcv=a[2].slice(a[2].indexOf("～")+1)|0;
+                  hp=hp+Tokkun[res["type"].split("タイプ").join("")+rarity+res["tkid"]][0];
+                  atk=atk+Tokkun[res["type"].split("タイプ").join("")+rarity+res["tkid"]][1];
+                  rcv=rcv+Tokkun[res["type"].split("タイプ").join("")+rarity+res["tkid"]][2];
                   t="体力："+hp+"\n攻撃："+atk+"\n回復："+rcv;
                   obj["embed"]["fields"].push(
-                    {name:"<<極ステータス(SP取得)>>",value:t}
-                  );
+                    {name:"<<極ステータス>>",value:t}
+                  )
+                  if(res["tksp"]&&((res["tksp"]=="あり"&&rarity==7)||(res["tksp"]=="あり(★6)"&&rarity>=6))){
+                    hp-=500;atk-=250;rcv-=100;
+                    t="体力："+hp+"\n攻撃："+atk+"\n回復："+rcv;
+                    obj["embed"]["fields"].push(
+                      {name:"<<極ステータス(SP取得)>>",value:t}
+                    );
+                  }
+                }else if(rarity<=4&&res["tkid"]!="-"){
+                  let a,hp,atk,rcv,t;
+                  a=res["charastats"].split("\n");
+                  hp=a[0].slice(a[0].indexOf("～")+1)|0;
+                  atk=a[1].slice(a[1].indexOf("～")+1)|0;
+                  rcv=a[2].slice(a[2].indexOf("～")+1)|0;
+                  hp=hp+1000;
+                  atk=atk+500;
+                  rcv=rcv+200;
+                  t="体力："+hp+"\n攻撃："+atk+"\n回復："+rcv;
+                  obj["embed"]["fields"].push(
+                    {name:"<<極ステータス>>",value:t}
+                  )
                 }
-              }
-              /************************************
-              if(res["ls"]){
-                obj["embed"]["fields"].push({name:res["lsname"].replace("スキル>>","スキル>>\n "),value:res["ls"]});
+                /************************************
+                if(res["ls"]){
+                  obj["embed"]["fields"].push({name:res["lsname"].replace("スキル>>","スキル>>\n "),value:res["ls"]});
+                }else{
+                  obj["embed"]["fields"].push({name:"<<リーダースキル>>",value:"なし"});
+                }
+                if(res["as"]){
+                  obj["embed"]["fields"].push({name:res["asname"].replace("スキル>>","スキル>>\n "),value:res["as"]});
+                }else{
+                  obj["embed"]["fields"].push({name:"<<スキル>>",value:"なし"});
+                }
+                if(res["bs"]){
+                  obj["embed"]["fields"].push({name:res["bsname"].replace("スキル>>","スキル>>\n "),value:res["bs"]});
+                }
+                ************************************/
+                obj["embed"]["fields"].push({name:"<<コンビネーション>>",value:res["combi"]});
+                mtx.channel.send(obj);
+                //console.log(res["img"]);
               }else{
-                obj["embed"]["fields"].push({name:"<<リーダースキル>>",value:"なし"});
+                if(res["tkid"]&&res["tkid"]!="-"&&res["tkid"]!="z"){
+                  let q=res["type"].split("タイプ").join(""),r=res["tkid"],s="",t="",u="";
+                  let color=res["color"].split("/")[0],scolor=res["color"].length>1?res["color"].split("/")[1]:false;
+                  if(res["name"].indexOf("戦乙女アルル")>0)scolor="青";
+                  var st = q=="体力"?10:q=="攻撃"?5:q=="回復"?2:1;
+                  var disadvantage="青緑赤紫黄",normal="赤青緑黄紫",advantage="緑赤青紫黄";
+	                var cnum=color=="赤"?0:color=="青"?1:color=="緑"?2:color=="黄"?3:4;
+                  var per=r=="E"?[0,5,0]:r=="D"?q=="攻撃"?[3,3,5]:q=="バランス"?[4,4,8]:[4,4,6]:r=="B"||r=="C1"||r=="C2"?q=="攻撃"?[2,3,5]:q=="バランス"?[3,4,8]:[3,4,6]:q=="攻撃"?[1,2,3]:q=="バランス"?[2,3,5]:[2,3,4];
+                  var condition=["怒り","怯え","混乱","麻痺","毒"];
+                  per[0]="+"+per[0]+"%";
+                  per[1]="+"+per[1]+"%";
+                  per[2]="+"+per[2]+"%";
+                  if(r=="A1"){
+                    s="固定7:"+q+"+"+(40*st)+"\n";
+                    s+="選択8:"+"属性盾"+per[0];
+                    t="固定15:"+"お手伝い上手"+"\n";
+                    t+="選択16:"+"属性盾"+per[1];
+                    u="固定23:"+disadvantage.slice(cnum,cnum+1)+"属性盾"+per[2]+"\n";
+                    u+="選択24:"+"体力+500／攻撃+250／回復+100";
+                  }else if(r=="A2"){
+                    s="固定7:"+disadvantage.slice(cnum,cnum+1)+"属性盾"+per[0]+"\n";
+                    s+="選択8:"+"体力+400／攻撃+200／回復+80";
+                    t="固定15:"+"お手伝い上手"+"\n";
+                    t+="選択16:"+"体力+400／攻撃+200／回復+80";
+                    u="固定23:"+disadvantage.slice(cnum,cnum+1)+"属性盾"+per[2]+"\n";
+                    u+="選択24:"+"体力+500／攻撃+250／回復+100";
+                  }else if(r=="B"){
+                    s="固定7:"+q+"+"+(40*st)+"\n";
+                    s+="選択8:"+"属性盾"+per[0];
+                    t="固定15:"+disadvantage.slice(cnum,cnum+1)+"属性盾"+per[1]+"\n";
+                    t+="選択16:"+"属性盾"+per[1];
+                    u="固定23:"+disadvantage.slice(cnum,cnum+1)+"属性盾"+per[2]+"\n";
+                    u+="選択24:"+"体力+500／攻撃+250／回復+100";
+                  }else if(r=="C1"){
+                    s="固定7:"+q+"+"+(50*st)+"\n";
+                    s+="選択8:"+"属性盾"+per[0];
+                    t="固定15:"+disadvantage.slice(cnum,cnum+1)+"属性盾"+per[1]+"\n";
+                    t+="選択16:"+"属性盾"+per[1];
+                    u="固定23:"+disadvantage.slice(cnum,cnum+1)+"属性盾"+per[2]+"\n";
+                    u+="選択24:"+"体力+500／攻撃+250／回復+100";
+                  }else if(r=="C2"){
+                    s="固定7:"+disadvantage.slice(cnum,cnum+1)+"属性盾"+per[0]+"\n";
+                    s+="選択8:"+"体力+500／攻撃+250／回復+100";
+                    t="固定15:"+disadvantage.slice(cnum,cnum+1)+"属性盾"+per[1]+"\n";
+                    t+="選択16:"+"体力+500／攻撃+250／回復+100";
+                    u="固定23:"+disadvantage.slice(cnum,cnum+1)+"属性盾"+per[2]+"\n";
+                    u+="選択24:"+"体力+500／攻撃+250／回復+100";
+                  }else if(r=="D"){
+                    s="固定7:"+disadvantage.slice(cnum,cnum+1)+"属性盾"+per[0]+"\n";
+                    s+="選択8:"+"体力+500／攻撃+250／回復+100";
+                    t="固定15:"+normal.slice(cnum,cnum+1)+"属性盾"+per[1]+"\n";
+                    t+="選択16:"+"状態異常盾";
+                    u="固定23:"+advantage.slice(cnum,cnum+1)+"属性盾"+per[2]+"\n";
+                    u+="選択24:"+"体力+500／攻撃+250／回復+100";
+                  }else if(r=="E"){
+                    s="固定7:"+condition[cnum]+"盾"+"\n";
+                    s+="選択8:"+"体力+500／攻撃+250／回復+100";
+                    t="固定15:"+disadvantage.slice(cnum,cnum+1)+"属性盾"+per[1]+"\n";
+                    t+="選択16:"+"体力+500／攻撃+250／回復+100";
+                    u="固定23:"+condition[normal.indexOf(scolor)]+"盾"+"\n";
+                    u+="選択24:"+"体力+500／攻撃+250／回復+100";
+                  }
+                  if(res["tksp"]&&res["tksp"]=="あり"){
+                    if(res["name"].indexOf("かわったエコロ")>0){
+                      u+="／LSSP／LSSP／LSSP";
+                    }else{
+                      u+="／LSSP／スキル(+)";
+                    }
+                  }else if(res["tksp"]&&res["tksp"]=="あり(★6)"){
+                    t+="／スキル(+)";
+                  }
+                  if(rarity>=5){
+                    obj["embed"]["fields"]=[
+                      {name:"<<特訓ボード 1-8>>",value:s}
+                    ];
+                    if(rarity>=6){
+                      obj["embed"]["fields"].push(
+                        {name:"<<特訓ボード 9-16>>",value:t}
+                      );
+                      if(rarity>=7){
+                        obj["embed"]["fields"].push(
+                          {name:"<<特訓ボード 17-24>>",value:u}
+                        );
+                      }
+                    }
+                  }else{
+                    obj["embed"]["fields"]=[
+                      {name:"<<特訓ボード>>",value:"特訓ボードの開放に必要なレアリティが不足しています。"}
+                    ];
+                  }
+                }else if(res["tkid"]=="-"){
+                  obj["embed"]["fields"]=[
+                    {name:"<<特訓ボード>>",value:"非対応キャラクターです。"}
+                  ];
+                }else if(res["tkid"]=="z"){
+                  obj["embed"]["fields"]=[
+                    {name:"<<特訓ボード>>",value:"特訓ボードの開放に必要なレアリティが未実装です。"}
+                  ];
+                }else{
+                  obj["embed"]["fields"]=[
+                    {name:"<<特訓ボード>>",value:"このキャラクターの特訓ボード情報が登録されていません。"}
+                  ];
+                }
+                mtx.channel.send(obj);
               }
-              if(res["as"]){
-                obj["embed"]["fields"].push({name:res["asname"].replace("スキル>>","スキル>>\n "),value:res["as"]});
-              }else{
-                obj["embed"]["fields"].push({name:"<<スキル>>",value:"なし"});
-              }
-              if(res["bs"]){
-                obj["embed"]["fields"].push({name:res["bsname"].replace("スキル>>","スキル>>\n "),value:res["bs"]});
-              }
-              ************************************/
-              obj["embed"]["fields"].push({name:"<<コンビネーション>>",value:res["combi"]});
-              mtx.channel.send(obj);
-              //console.log(res["img"]);
             }else if(res["stats"]=="success"){
               let obj = {};
               obj["embed"]={};
